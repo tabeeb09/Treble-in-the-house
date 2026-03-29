@@ -1,0 +1,201 @@
+{
+  "id": "midnight_launderette_supernova",
+  "title": "Midnight Launderette Supernova",
+  "publicTheme": "A neon laundrette dance anthem where everyone thinks spin cycles are destiny.",
+  "roleThemes": {
+    "lyricist": "A sticky, ecstatic midnight laundrette pop banger. Detergent glow, snack machine swagger, socks of fate, tragic glamour.",
+    "imposter": "A suspicious startup laundry-optimization anthem. Workflow dashboards, subscription detergent, operational excellence, deeply cursed efficiency worship."
+  },
+  "promptUnits": [
+    {
+      "id": "launderette_intro",
+      "order": 1,
+      "section": "intro",
+      "outputTemplate": "{player_comment} | {lyric_fill}",
+      "steps": [
+        {
+          "id": "player_comment",
+          "order": 1,
+          "kind": "comment_on_player",
+          "bindings": [
+            {
+              "key": "targetPlayerName",
+              "type": "string",
+              "source": {
+                "kind": "random_other_alive_player_name"
+              }
+            }
+          ],
+          "lyricist": {
+            "promptTemplate": "Describe {{targetPlayerName}} like they entered the laundrette at midnight dressed for a minor pop emergency.",
+            "defaultBotInstructionTemplate": "Write a short playful laundrette-pop description of {{targetPlayerName}}.",
+            "defaultResponseTemplate": "{{targetPlayerName}} sparkles through detergent prophecy",
+            "defaultTag": "laundrette_pop_roast"
+          },
+          "imposter": {
+            "promptTemplate": "Describe {{targetPlayerName}} like they are the keynote speaker for a premium laundry-tech summit.",
+            "defaultBotInstructionTemplate": "Write a short startup-style compliment about {{targetPlayerName}} and laundry innovation.",
+            "defaultResponseTemplate": "{{targetPlayerName}} optimizes rinse-cycle ambition",
+            "defaultTag": "laundry_startup_praise"
+          }
+        },
+        {
+          "id": "lyric_fill",
+          "order": 2,
+          "kind": "complete_the_lyric",
+          "sharedTextTemplate": "The dryers hum like ____ at midnight",
+          "lyricist": {
+            "promptTemplate": "Fill the blank with messy glamorous laundrette energy.",
+            "defaultBotInstructionTemplate": "Complete the lyric with neon laundrette imagery.",
+            "defaultResponseTemplate": "disco confessionals",
+            "defaultTag": "neon_laundry"
+          },
+          "imposter": {
+            "promptTemplate": "Fill the blank with sleek, suspicious productivity energy.",
+            "defaultBotInstructionTemplate": "Complete the lyric with startup-operations imagery.",
+            "defaultResponseTemplate": "scalable visions",
+            "defaultTag": "process_glamour"
+          }
+        }
+      ]
+    },
+    {
+      "id": "launderette_chorus_1",
+      "order": 2,
+      "section": "chorus",
+      "outputTemplate": "{brainrot_caption} | {lyric_fill}",
+      "steps": [
+        {
+          "id": "brainrot_caption",
+          "order": 1,
+          "kind": "brainrot_caption",
+          "lyricist": {
+            "promptTemplate": "Give this laundrette anthem a brainrot caption like a cursed nightlife reel.",
+            "defaultBotInstructionTemplate": "Write a short brainrot caption for laundrette chaos.",
+            "defaultResponseTemplate": "rinsecore main-character outbreak",
+            "defaultTag": "brainrot_laundry"
+          },
+          "imposter": {
+            "promptTemplate": "Give this performance a brainrot caption like a venture-capital thought leadership clip.",
+            "defaultBotInstructionTemplate": "Write a short brainrot caption for startup operations mania.",
+            "defaultResponseTemplate": "synergyspin growth-hack rinse",
+            "defaultTag": "brainrot_startup"
+          }
+        },
+        {
+          "id": "lyric_fill",
+          "order": 2,
+          "kind": "complete_the_lyric",
+          "sharedTextTemplate": "We fold our drama into ____",
+          "lyricist": {
+            "promptTemplate": "Fill the blank with something dramatic and silly.",
+            "defaultBotInstructionTemplate": "Complete the lyric with dramatic laundrette imagery.",
+            "defaultResponseTemplate": "glittered surrender",
+            "defaultTag": "folded_drama"
+          },
+          "imposter": {
+            "promptTemplate": "Fill the blank with suspiciously polished business language.",
+            "defaultBotInstructionTemplate": "Complete the lyric with operational nonsense.",
+            "defaultResponseTemplate": "actionable outcomes",
+            "defaultTag": "operational_nonsense"
+          }
+        }
+      ]
+    },
+    {
+      "id": "launderette_chorus_2",
+      "order": 3,
+      "section": "chorus",
+      "outputTemplate": "{social_observation} | {lyric_fill}",
+      "steps": [
+        {
+          "id": "social_observation",
+          "order": 1,
+          "kind": "vague_social_prompt",
+          "bindings": [
+            {
+              "key": "targetPlayerName",
+              "type": "string",
+              "source": {
+                "kind": "random_other_alive_player_name"
+              }
+            }
+          ],
+          "lyricist": {
+            "promptTemplate": "Say what energy {{targetPlayerName}} brings to the coin machine queue.",
+            "defaultBotInstructionTemplate": "Write a short funny laundrette observation about {{targetPlayerName}}.",
+            "defaultResponseTemplate": "{{targetPlayerName}} queues with sequinned resolve",
+            "defaultTag": "coin_machine_energy"
+          },
+          "imposter": {
+            "promptTemplate": "Say what energy {{targetPlayerName}} brings to the investor mingling area.",
+            "defaultBotInstructionTemplate": "Write a short startup-networking observation about {{targetPlayerName}}.",
+            "defaultResponseTemplate": "{{targetPlayerName}} pivots with detergent confidence",
+            "defaultTag": "networking_rinse"
+          }
+        },
+        {
+          "id": "lyric_fill",
+          "order": 2,
+          "kind": "complete_the_lyric",
+          "sharedTextTemplate": "Even the lost socks chant ____",
+          "lyricist": {
+            "promptTemplate": "Fill the blank with something mythic and ridiculous.",
+            "defaultBotInstructionTemplate": "Complete the lyric with absurd laundrette destiny.",
+            "defaultResponseTemplate": "one more spin",
+            "defaultTag": "sock_destiny"
+          },
+          "imposter": {
+            "promptTemplate": "Fill the blank with eerie process-driven certainty.",
+            "defaultBotInstructionTemplate": "Complete the lyric with process-cult certainty.",
+            "defaultResponseTemplate": "align and scale",
+            "defaultTag": "scale_cult"
+          }
+        }
+      ]
+    },
+    {
+      "id": "launderette_outro",
+      "order": 4,
+      "section": "outro",
+      "outputTemplate": "{final_tag} | {lyric_fill}",
+      "steps": [
+        {
+          "id": "final_tag",
+          "order": 1,
+          "kind": "vague_social_prompt",
+          "lyricist": {
+            "promptTemplate": "Give the final emotional tag for this laundrette night.",
+            "defaultBotInstructionTemplate": "Write a short comic laundrette epilogue.",
+            "defaultResponseTemplate": "clean clothes dirty legend",
+            "defaultTag": "launderette_epilogue"
+          },
+          "imposter": {
+            "promptTemplate": "Give the final emotional tag for this laundry-tech revolution.",
+            "defaultBotInstructionTemplate": "Write a short startup epilogue tag.",
+            "defaultResponseTemplate": "seed-funded rinse awakening",
+            "defaultTag": "startup_epilogue"
+          }
+        },
+        {
+          "id": "lyric_fill",
+          "order": 2,
+          "kind": "complete_the_lyric",
+          "sharedTextTemplate": "This tiny laundrette becomes ____ by sunrise",
+          "lyricist": {
+            "promptTemplate": "Fill the blank like the room became legendary overnight.",
+            "defaultBotInstructionTemplate": "Complete the lyric with mythic laundrette energy.",
+            "defaultResponseTemplate": "our soft apocalypse",
+            "defaultTag": "mythic_laundry_room"
+          },
+          "imposter": {
+            "promptTemplate": "Fill the blank like the room became a polished optimization temple.",
+            "defaultBotInstructionTemplate": "Complete the lyric with efficiency-cult imagery.",
+            "defaultResponseTemplate": "a frictionless shrine",
+            "defaultTag": "efficiency_shrine"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -8,28 +8,35 @@ const PLAYER_ID_KEY = "lan-lyric-party-player-id";
 
 const pageStyle = {
   minHeight: "100vh",
-  padding: "24px 16px"
+  padding: "28px 16px"
 };
 
 const panelStyle = {
   maxWidth: "760px",
   margin: "0 auto",
-  padding: "16px",
-  backgroundColor: "#fff",
-  border: "1px solid #ddd",
-  borderRadius: "8px"
+  padding: "18px",
+  background:
+    "linear-gradient(180deg, rgba(255,248,238,0.96) 0%, rgba(255,255,255,0.9) 100%)",
+  border: "1px solid rgba(96,65,28,0.12)",
+  borderRadius: "22px",
+  boxShadow: "0 20px 45px rgba(79, 49, 17, 0.12)"
 };
 
 const sectionStyle = {
   marginTop: "20px",
-  paddingTop: "16px",
-  borderTop: "1px solid #eee"
+  padding: "16px",
+  border: "1px solid rgba(96,65,28,0.10)",
+  borderRadius: "16px",
+  background: "rgba(255,255,255,0.72)"
 };
 
 const statusStyle = {
   display: "grid",
   gap: "6px",
-  fontSize: "14px"
+  fontSize: "14px",
+  padding: "14px 16px",
+  borderRadius: "16px",
+  background: "rgba(36, 53, 93, 0.08)"
 };
 
 const inputStyle = {
@@ -41,11 +48,17 @@ const inputStyle = {
 };
 
 const buttonStyle = {
-  padding: "10px 16px",
+  padding: "11px 18px",
   fontSize: "16px",
   cursor: "pointer",
   marginTop: "12px",
-  marginRight: "8px"
+  marginRight: "8px",
+  borderRadius: "999px",
+  border: "none",
+  background: "linear-gradient(135deg, #ff8f4d 0%, #e65050 100%)",
+  color: "#fff",
+  fontWeight: 700,
+  boxShadow: "0 10px 22px rgba(222, 96, 63, 0.22)"
 };
 
 const listStyle = {
@@ -56,8 +69,9 @@ const listStyle = {
 
 const itemStyle = {
   padding: "10px",
-  backgroundColor: "#f3f3f3",
-  borderRadius: "6px"
+  backgroundColor: "rgba(248, 240, 231, 0.88)",
+  borderRadius: "12px",
+  border: "1px solid rgba(93, 54, 23, 0.08)"
 };
 
 const subtleTextStyle = {

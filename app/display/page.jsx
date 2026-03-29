@@ -4,18 +4,22 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import JoinQrCard from "../../components/JoinQrCard";
 
+const AMBIENT_TRACK_URL = "/audio/Pop1.wav";
+
 const pageStyle = {
   minHeight: "100vh",
-  padding: "24px 16px"
+  padding: "30px 18px"
 };
 
 const panelStyle = {
-  maxWidth: "900px",
+  maxWidth: "980px",
   margin: "0 auto",
-  padding: "20px",
-  backgroundColor: "#fff",
-  border: "1px solid #ddd",
-  borderRadius: "8px"
+  padding: "26px",
+  background:
+    "linear-gradient(180deg, rgba(255,248,240,0.95) 0%, rgba(255,255,255,0.92) 100%)",
+  border: "1px solid rgba(92, 61, 28, 0.12)",
+  borderRadius: "26px",
+  boxShadow: "0 28px 60px rgba(50, 32, 10, 0.14)"
 };
 
 const listStyle = {
@@ -26,8 +30,9 @@ const listStyle = {
 
 const itemStyle = {
   padding: "12px",
-  backgroundColor: "#f3f3f3",
-  borderRadius: "6px"
+  backgroundColor: "rgba(253, 244, 235, 0.92)",
+  borderRadius: "14px",
+  border: "1px solid rgba(92, 61, 28, 0.10)"
 };
 
 const buttonStyle = {
@@ -35,17 +40,24 @@ const buttonStyle = {
   fontSize: "16px",
   cursor: "pointer",
   marginTop: "12px",
-  marginRight: "8px"
+  marginRight: "8px",
+  border: "none",
+  borderRadius: "999px",
+  background: "linear-gradient(135deg, #ff8f4d 0%, #db4f65 100%)",
+  color: "#fff",
+  fontWeight: 700,
+  boxShadow: "0 12px 22px rgba(222, 96, 63, 0.22)"
 };
 
 const lyricViewportStyle = {
   position: "relative",
-  height: "320px",
+  height: "360px",
   overflow: "hidden",
   marginTop: "20px",
-  border: "1px solid #ddd",
-  borderRadius: "8px",
-  backgroundColor: "#f8f8f8"
+  border: "1px solid rgba(52, 61, 114, 0.12)",
+  borderRadius: "22px",
+  background:
+    "radial-gradient(circle at top, rgba(255,242,216,0.92) 0%, rgba(248,251,255,0.94) 60%, rgba(243,241,255,0.96) 100%)"
 };
 
 function renderWinnerLabel(winner) {
@@ -89,6 +101,7 @@ function getCurrentLineIndexFromPlayback(lineTimings, playbackMs) {
 export default function DisplayPage() {
   const socketRef = useRef(null);
   const audioRef = useRef(null);
+  const ambientAudioRef = useRef(null);
   const [connected, setConnected] = useState(false);
   const [snapshot, setSnapshot] = useState(null);
   const [now, setNow] = useState(Date.now());
@@ -191,6 +204,7 @@ export default function DisplayPage() {
   useEffect(() => {
     const audioElement = audioRef.current;
     const audioUrl = game.generatedSong?.audioUrl || null;
+    const ambientAudioElement = ambientAudioRef.current;
 
     if (!audioElement) {
       return;
@@ -198,15 +212,27 @@ export default function DisplayPage() {
 
     if (game.phase !== "lyric_reveal") {
       audioElement.pause();
+      if (ambientAudioElement) {
+        ambientAudioElement.volume = 0.16;
+        const ambientPlayPromise = ambientAudioElement.play();
+
+        if (ambientPlayPromise && typeof ambientPlayPromise.catch === "function") {
+          ambientPlayPromise.catch(() => {
+            setAutoplayBlocked(true);
+          });
+        }
+      }
       setPlaybackMs(0);
-      setAutoplayBlocked(false);
       return;
     }
 
     if (!audioUrl) {
       setPlaybackMs(0);
-      setAutoplayBlocked(false);
       return;
+    }
+
+    if (ambientAudioElement) {
+      ambientAudioElement.pause();
     }
 
     if (!audioElement.src || !audioElement.src.endsWith(audioUrl)) {
@@ -216,13 +242,14 @@ export default function DisplayPage() {
 
     audioElement.currentTime = 0;
     setPlaybackMs(0);
-    setAutoplayBlocked(false);
 
     const playPromise = audioElement.play();
 
     if (playPromise && typeof playPromise.catch === "function") {
       playPromise.catch(() => {
         setAutoplayBlocked(true);
+      }).then(() => {
+        setAutoplayBlocked(false);
       });
     }
   }, [game.phase, game.generatedSong?.audioUrl, game.roundId]);
@@ -235,19 +262,22 @@ export default function DisplayPage() {
     (game.phase === "lobby" || game.phase === "tutorial" || game.phase === "round_intro");
 
   const lineTimings = game.generatedSong?.lineTimings || [];
+  const activeRevealLines = game.revealLines || [];
   const visualLineIndex =
-    game.phase === "lyric_reveal" && lineTimings.length > 0
+    game.phase === "lyric_reveal" &&
+    lineTimings.length > 0 &&
+    lineTimings.length === activeRevealLines.length
       ? getCurrentLineIndexFromPlayback(lineTimings, playbackMs)
       : game.currentRevealLineIndex || 0;
 
   const visibleRevealLines = useMemo(
     () =>
-      game.revealLines.map((line, index) => ({
+      activeRevealLines.map((line, index) => ({
         ...line,
         index,
         offset: index - visualLineIndex
       })),
-    [game.revealLines, visualLineIndex]
+    [activeRevealLines, visualLineIndex]
   );
 
   function emit(eventName) {
@@ -260,21 +290,36 @@ export default function DisplayPage() {
 
   function handleManualPlay() {
     const audioElement = audioRef.current;
+    const ambientAudioElement = ambientAudioRef.current;
 
-    if (!audioElement) {
+    if (game.phase === "lyric_reveal" && audioElement) {
+      audioElement.play().then(() => {
+        setAutoplayBlocked(false);
+      }).catch(() => {
+        setAutoplayBlocked(true);
+      });
       return;
     }
 
-    audioElement.play().then(() => {
-      setAutoplayBlocked(false);
-    }).catch(() => {
-      setAutoplayBlocked(true);
-    });
+    if (ambientAudioElement) {
+      ambientAudioElement.play().then(() => {
+        setAutoplayBlocked(false);
+      }).catch(() => {
+        setAutoplayBlocked(true);
+      });
+    }
   }
 
   return (
     <main style={pageStyle}>
       <section style={panelStyle}>
+        <audio
+          ref={ambientAudioRef}
+          src={AMBIENT_TRACK_URL}
+          preload="auto"
+          loop
+          style={{ display: "none" }}
+        />
         <h1 style={{ marginTop: 0 }}>LAN Lyric Imposter Display</h1>
         <p>Status: {connected ? "Connected" : "Disconnected"}</p>
         {game.localGameUrl && <p>Players join on phones: {game.localGameUrl}</p>}
@@ -284,6 +329,11 @@ export default function DisplayPage() {
             title="Scan to Join on Phones"
             helperText="Use this QR code to open the participant screen directly."
           />
+        )}
+        {autoplayBlocked && (
+          <button type="button" onClick={handleManualPlay} style={buttonStyle}>
+            Enable Room Audio
+          </button>
         )}
 
         {game.phase === "lobby" && (
@@ -382,7 +432,7 @@ export default function DisplayPage() {
                 const hidden = distance > 2;
                 const scale = hidden ? 0.82 : Math.max(0.82, 1 - distance * 0.12);
                 const opacity = hidden ? 0 : Math.max(0.2, 1 - distance * 0.28);
-                const blur = hidden ? 6 : distance * 1.4;
+                const blur = hidden ? 6 : distance * 1.2;
 
                 return (
                   <div
@@ -400,8 +450,9 @@ export default function DisplayPage() {
                       transition:
                         "transform 240ms ease, opacity 240ms ease, filter 240ms ease",
                       textAlign: "center",
-                      fontWeight: line.offset === 0 ? 700 : 400,
-                      fontSize: line.offset === 0 ? "32px" : "22px",
+                      fontWeight: line.offset === 0 ? 800 : 500,
+                      fontSize: line.offset === 0 ? "34px" : "21px",
+                      color: line.offset === 0 ? "#1d1732" : "#514a67",
                       pointerEvents: "none"
                     }}
                   >

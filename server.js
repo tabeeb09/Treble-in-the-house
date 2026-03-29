@@ -22,7 +22,7 @@ const port = Number(process.env.PORT) || 3000;
 
 const TUTORIAL_DURATION_MS = 15_000;
 const ROUND_INTRO_DURATION_MS = 2_500;
-const WRITING_DURATION_MS = 45_000;
+const WRITING_DURATION_MS = 60_000;
 const STEP_DURATION_MS = 30_000;
 const TIMES_UP_DURATION_MS = 2_000;
 const REVEAL_LINE_INTERVAL_MS = 1_800;
@@ -729,19 +729,41 @@ function getRevealLines() {
     .filter((line) => line.text);
 }
 
+function getActiveRevealLines() {
+  const generatedRevealLines = Array.isArray(gameState.generatedSong.revealLines)
+    ? gameState.generatedSong.revealLines.filter((line) => line?.text)
+    : [];
+
+  if (
+    generatedRevealLines.length > 0 &&
+    (gameState.phase === "lyric_reveal" ||
+      gameState.phase === "voting" ||
+      gameState.phase === "round_result" ||
+      gameState.phase === "game_over")
+  ) {
+    return generatedRevealLines;
+  }
+
+  return getRevealLines();
+}
+
 function getGeneratedSongSnapshot() {
   return {
     status: gameState.generatedSong.status,
     audioUrl: gameState.generatedSong.audioUrl,
     mimeType: gameState.generatedSong.mimeType,
     lyricsLines: gameState.generatedSong.lyricsLines,
+    revealLines: gameState.generatedSong.revealLines,
     lineTimings: gameState.generatedSong.lineTimings,
     wordTimings: gameState.generatedSong.wordTimings,
     errorMessage: gameState.generatedSong.errorMessage,
     musicProvider: gameState.generatedSong.musicProvider,
     alignmentProvider: gameState.generatedSong.alignmentProvider,
     promptUsed: gameState.generatedSong.promptUsed,
-    roundId: gameState.generatedSong.roundId
+    roundId: gameState.generatedSong.roundId,
+    usedFiller: gameState.generatedSong.usedFiller,
+    fillerProvider: gameState.generatedSong.fillerProvider,
+    fillerPrompt: gameState.generatedSong.fillerPrompt
   };
 }
 
@@ -874,7 +896,7 @@ function buildSnapshot(socket) {
         gameState.phase === "voting" ||
         gameState.phase === "round_result" ||
         gameState.phase === "game_over"
-          ? getRevealLines()
+          ? getActiveRevealLines()
           : [],
       roundOutcome:
         gameState.phase === "round_result" || gameState.phase === "game_over"
@@ -1094,7 +1116,7 @@ function advanceLyricReveal(io) {
     return;
   }
 
-  const revealLines = getRevealLines();
+  const revealLines = getActiveRevealLines();
 
   if (revealLines.length === 0) {
     beginVoting(io);
@@ -1123,7 +1145,11 @@ function beginLyricReveal(io) {
     return;
   }
 
-  const revealLines = getRevealLines();
+  const revealLines =
+    Array.isArray(gameState.generatedSong.revealLines) &&
+    gameState.generatedSong.revealLines.length > 0
+      ? gameState.generatedSong.revealLines
+      : getRevealLines();
 
   gameState.phase = "lyric_reveal";
   gameState.currentRevealLineIndex = 0;
@@ -1175,8 +1201,12 @@ async function beginAiSongGenerating(io) {
   gameState.phaseDeadlineAt = null;
   gameState.currentRevealLineIndex = 0;
   gameState.revealStartedAt = null;
+  const baseRevealLines = getRevealLines();
   gameState.generatedSong = {
-    ...buildInitialGeneratedSongState(getRevealLines().map((line) => line.text)),
+    ...buildInitialGeneratedSongState(
+      baseRevealLines.map((line) => line.text),
+      baseRevealLines
+    ),
     status: "generating",
     roundId: activeRoundId
   };
@@ -1189,7 +1219,7 @@ async function beginAiSongGenerating(io) {
     stylePrompt:
       gameState.currentSong?.publicTheme ||
       "Catchy short party-pop with sung vocals and clear hooks.",
-    revealLines: getRevealLines(),
+    revealLines: baseRevealLines,
     durationSec: DEFAULT_ROUND_SONG_DURATION_SEC,
     generatedSong: gameState.generatedSong
   });
@@ -1228,7 +1258,10 @@ function finishWriting(io, reason) {
 
       if (gameState.phase === "times_up") {
         gameState.generatedSong = {
-          ...buildInitialGeneratedSongState(getRevealLines().map((line) => line.text)),
+          ...buildInitialGeneratedSongState(
+            getRevealLines().map((line) => line.text),
+            getRevealLines()
+          ),
           status: "error",
           errorMessage: error.message || "AI generation failed."
         };
