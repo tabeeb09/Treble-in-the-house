@@ -11,14 +11,6 @@ if errorlevel 1 (
   exit /b 1
 )
 
-where gcloud >nul 2>nul
-if errorlevel 1 (
-  echo gcloud was not found on this machine.
-  echo Install the Google Cloud CLI first, then try again.
-  pause
-  exit /b 1
-)
-
 if exist "local-secrets.cmd" (
   call "local-secrets.cmd"
 )
@@ -36,21 +28,27 @@ if not defined GOOGLE_CLOUD_PROJECT (
 
 set "MOCK_AI=false"
 
-echo Checking Google Cloud Application Default Credentials...
-gcloud auth application-default print-access-token >nul 2>nul
+where gcloud >nul 2>nul
 if errorlevel 1 (
-  echo No ADC login found. Opening Google browser login now...
-  gcloud auth application-default login
+  echo gcloud was not found on this machine.
+  echo Continuing anyway. Music generation can still work with GEMINI_API_KEY.
+  echo If Google Cloud ADC is not configured, lyric alignment will fall back to proportional timings.
+) else (
+  echo Checking Google Cloud Application Default Credentials...
+  gcloud auth application-default print-access-token >nul 2>nul
   if errorlevel 1 (
-    echo Google Cloud ADC login failed.
-    pause
-    exit /b 1
+    echo No ADC login found. Opening Google browser login now...
+    gcloud auth application-default login
+    if errorlevel 1 (
+      echo Google Cloud ADC login failed.
+      echo Continuing anyway. Alignment may fall back if credentials are unavailable.
+    )
   )
-)
 
-echo Setting Google Cloud project...
-gcloud config set project "%GOOGLE_CLOUD_PROJECT%" >nul
-gcloud auth application-default set-quota-project "%GOOGLE_CLOUD_PROJECT%" >nul
+  echo Setting Google Cloud project...
+  gcloud config set project "%GOOGLE_CLOUD_PROJECT%" >nul
+  gcloud auth application-default set-quota-project "%GOOGLE_CLOUD_PROJECT%" >nul
+)
 
 echo Starting LAN Lyric Imposter server in real AI mode...
 start "LAN Lyric Imposter Server" cmd /k "cd /d ""%~dp0"" && npm run dev"

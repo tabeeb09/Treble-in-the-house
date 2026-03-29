@@ -11,14 +11,15 @@ if errorlevel 1 (
   exit /b 1
 )
 
-rem Always force mock mode in the simple launcher.
-set "MOCK_AI=true"
-set "GEMINI_API_KEY="
-set "GOOGLE_APPLICATION_CREDENTIALS="
-set "GOOGLE_CLOUD_PROJECT="
-set "LYRIA_MODEL=lyria-3-pro-preview"
-set "MUSIC_PROVIDER=google-lyria"
-set "ALIGNMENT_PROVIDER=google-cloud-stt"
+if exist "local-secrets.cmd" (
+  call "local-secrets.cmd"
+)
+
+rem If no local secrets were provided, fall back to mock mode.
+if not defined MOCK_AI set "MOCK_AI=true"
+if not defined LYRIA_MODEL set "LYRIA_MODEL=lyria-3-pro-preview"
+if not defined MUSIC_PROVIDER set "MUSIC_PROVIDER=google-lyria"
+if not defined ALIGNMENT_PROVIDER set "ALIGNMENT_PROVIDER=google-cloud-stt"
 
 echo Starting LAN Lyric Imposter server...
 start "LAN Lyric Imposter Server" cmd /k "cd /d ""%~dp0"" && npm run dev"
