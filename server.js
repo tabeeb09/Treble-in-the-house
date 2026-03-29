@@ -203,6 +203,84 @@ function parseWindowsIpconfigCandidates(output) {
   return candidates;
 }
 
+function parseWindowsRouteCandidates(output) {
+  const lines = String(output || "").split(/\r?\n/);
+  const candidates = [];
+  let inActiveRoutes = false;
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+
+    if (trimmedLine === "Active Routes:") {
+      inActiveRoutes = true;
+      continue;
+    }
+
+    if (!inActiveRoutes) {
+      continue;
+    }
+
+    if (!trimmedLine || /^=+/.test(trimmedLine) || /^Persistent Routes:/i.test(trimmedLine)) {
+      if (/^Persistent Routes:/i.test(trimmedLine)) {
+        break;
+      }
+
+      continue;
+    }
+
+    const columns = trimmedLine.split(/\s+/);
+
+    if (columns.length < 5) {
+      continue;
+    }
+
+    if (columns[0] !== "0.0.0.0" || columns[1] !== "0.0.0.0") {
+      continue;
+    }
+
+    const gateway = columns[2];
+    const interfaceAddress = columns[3];
+    const metric = Number.parseInt(columns[4], 10);
+
+    if (!isPrivateIpv4Address(interfaceAddress)) {
+      continue;
+    }
+
+    candidates.push({
+      name: "default-route",
+      address: interfaceAddress,
+      hasGateway: gateway !== "On-link",
+      metric: Number.isNaN(metric) ? Number.MAX_SAFE_INTEGER : metric
+    });
+  }
+
+  return candidates;
+}
+
+function getWindowsDefaultRouteAddress() {
+  try {
+    const output = execSync("route print -4", {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"]
+    });
+    const candidates = parseWindowsRouteCandidates(output);
+
+    if (candidates.length === 0) {
+      return null;
+    }
+
+    return candidates.sort((left, right) => {
+      if (left.metric !== right.metric) {
+        return left.metric - right.metric;
+      }
+
+      return scoreLanCandidate(right) - scoreLanCandidate(left);
+    })[0].address;
+  } catch (error) {
+    return null;
+  }
+}
+
 function getWindowsPreferredIpAddress() {
   try {
     const output = execSync("ipconfig", {
@@ -257,6 +335,12 @@ function getFallbackLocalIpAddress() {
 
 function getLocalIpAddress() {
   if (process.platform === "win32") {
+    const defaultRouteAddress = getWindowsDefaultRouteAddress();
+
+    if (defaultRouteAddress) {
+      return defaultRouteAddress;
+    }
+
     const preferredWindowsAddress = getWindowsPreferredIpAddress();
 
     if (preferredWindowsAddress) {
