@@ -56,7 +56,14 @@ echo Starting LAN Lyric Imposter server in real AI mode...
 start "LAN Lyric Imposter Server" cmd /k "cd /d ""%~dp0"" && npm run dev"
 
 echo Waiting for the server to boot...
-timeout /t 5 /nobreak >nul
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$deadline=(Get-Date).AddSeconds(30); while((Get-Date) -lt $deadline){ try { $r=Invoke-WebRequest -Uri 'http://localhost:3000/display' -UseBasicParsing -TimeoutSec 2; if($r.StatusCode -ge 200){ exit 0 } } catch {}; Start-Sleep -Milliseconds 750 }; exit 1"
+if errorlevel 1 (
+  echo The server did not become ready in time.
+  echo If a new server window opened, check it for errors and refresh the browser after it finishes booting.
+  pause
+  exit /b 1
+)
 
 echo Opening display page in your default browser...
 start "" "http://localhost:3000/display"
