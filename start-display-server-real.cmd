@@ -1,0 +1,64 @@
+@echo off
+setlocal
+
+cd /d "%~dp0"
+
+where npm >nul 2>nul
+if errorlevel 1 (
+  echo npm was not found on this machine.
+  echo Please install Node.js and npm first, then try again.
+  pause
+  exit /b 1
+)
+
+where gcloud >nul 2>nul
+if errorlevel 1 (
+  echo gcloud was not found on this machine.
+  echo Install the Google Cloud CLI first, then try again.
+  pause
+  exit /b 1
+)
+
+if exist "local-secrets.cmd" (
+  call "local-secrets.cmd"
+)
+
+if not defined GEMINI_API_KEY (
+  echo GEMINI_API_KEY is not set.
+  echo Create local-secrets.cmd from local-secrets.example.cmd and try again.
+  pause
+  exit /b 1
+)
+
+if not defined GOOGLE_CLOUD_PROJECT (
+  set "GOOGLE_CLOUD_PROJECT=gen-lang-client-0743317859"
+)
+
+set "MOCK_AI=false"
+
+echo Checking Google Cloud Application Default Credentials...
+gcloud auth application-default print-access-token >nul 2>nul
+if errorlevel 1 (
+  echo No ADC login found. Opening Google browser login now...
+  gcloud auth application-default login
+  if errorlevel 1 (
+    echo Google Cloud ADC login failed.
+    pause
+    exit /b 1
+  )
+)
+
+echo Setting Google Cloud project...
+gcloud config set project "%GOOGLE_CLOUD_PROJECT%" >nul
+gcloud auth application-default set-quota-project "%GOOGLE_CLOUD_PROJECT%" >nul
+
+echo Starting LAN Lyric Imposter server in real AI mode...
+start "LAN Lyric Imposter Server" cmd /k "cd /d ""%~dp0"" && npm run dev"
+
+echo Waiting for the server to boot...
+timeout /t 5 /nobreak >nul
+
+echo Opening display page in your default browser...
+start "" "http://localhost:3000/display"
+
+endlocal

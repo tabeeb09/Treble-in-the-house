@@ -1,0 +1,11 @@
+node_modules/
+.next/
+
+data/generated-audio/
+data/generated-meta/
+
+.env.local
+.env*.local
+local-secrets.cmd
+service-account*.json
+google-credentials*.json
