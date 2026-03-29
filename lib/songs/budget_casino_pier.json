@@ -1,0 +1,201 @@
+{
+  "id": "budget_casino_on_the_pier",
+  "title": "Budget Casino on the Pier",
+  "publicTheme": "A seaside casino anthem full of sticky chips, false confidence, and cheap jackpot delusion.",
+  "roleThemes": {
+    "lyricist": "A gloriously tacky pier-casino anthem. Salt air, blinking signs, bad odds, and fearless nonsense.",
+    "imposter": "A cruise-ship compliance seminar anthem. Maritime policies, laminated smiles, suspicious training enthusiasm."
+  },
+  "promptUnits": [
+    {
+      "id": "pier_intro",
+      "order": 1,
+      "section": "intro",
+      "outputTemplate": "{player_comment} | {lyric_fill}",
+      "steps": [
+        {
+          "id": "player_comment",
+          "order": 1,
+          "kind": "comment_on_player",
+          "bindings": [
+            {
+              "key": "targetPlayerName",
+              "type": "string",
+              "source": {
+                "kind": "random_other_alive_player_name"
+              }
+            }
+          ],
+          "lyricist": {
+            "promptTemplate": "Describe {{targetPlayerName}} like they just lost seven pounds and still feel chosen by fate.",
+            "defaultBotInstructionTemplate": "Write a short affectionate pier-casino roast about {{targetPlayerName}}.",
+            "defaultResponseTemplate": "{{targetPlayerName}} gambles with majestic delusion",
+            "defaultTag": "casino_roast"
+          },
+          "imposter": {
+            "promptTemplate": "Describe {{targetPlayerName}} like they are thriving in a mandatory cruise safety workshop.",
+            "defaultBotInstructionTemplate": "Write a short compliance-positive line about {{targetPlayerName}}.",
+            "defaultResponseTemplate": "{{targetPlayerName}} radiates compliant excellence",
+            "defaultTag": "compliance_praise"
+          }
+        },
+        {
+          "id": "lyric_fill",
+          "order": 2,
+          "kind": "complete_the_lyric",
+          "sharedTextTemplate": "The jackpot lights say ____ to fools like us",
+          "lyricist": {
+            "promptTemplate": "Fill the blank with seaside-casino encouragement.",
+            "defaultBotInstructionTemplate": "Complete the lyric with cheap jackpot delusion.",
+            "defaultResponseTemplate": "double down darling",
+            "defaultTag": "jackpot_delusion"
+          },
+          "imposter": {
+            "promptTemplate": "Fill the blank with laminated policy certainty.",
+            "defaultBotInstructionTemplate": "Complete the lyric with compliance language.",
+            "defaultResponseTemplate": "follow protocol",
+            "defaultTag": "protocol_mantra"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pier_chorus_1",
+      "order": 2,
+      "section": "chorus",
+      "outputTemplate": "{brainrot_caption} | {lyric_fill}",
+      "steps": [
+        {
+          "id": "brainrot_caption",
+          "order": 1,
+          "kind": "brainrot_caption",
+          "lyricist": {
+            "promptTemplate": "Give this casino night a cursed brainrot caption.",
+            "defaultBotInstructionTemplate": "Write a short brainrot caption for pier-casino chaos.",
+            "defaultResponseTemplate": "coincore gull-chaos jackpot arc",
+            "defaultTag": "brainrot_casino"
+          },
+          "imposter": {
+            "promptTemplate": "Give this seminar a brainrot caption like a training video snippet.",
+            "defaultBotInstructionTemplate": "Write a short brainrot caption for maritime compliance energy.",
+            "defaultResponseTemplate": "lifeboatmindset onboarding era",
+            "defaultTag": "brainrot_compliance"
+          }
+        },
+        {
+          "id": "lyric_fill",
+          "order": 2,
+          "kind": "complete_the_lyric",
+          "sharedTextTemplate": "We throw our last coins at ____",
+          "lyricist": {
+            "promptTemplate": "Fill the blank with desperate seaside glamour.",
+            "defaultBotInstructionTemplate": "Complete the lyric with tacky casino hope.",
+            "defaultResponseTemplate": "salt-crusted destiny",
+            "defaultTag": "seaside_fate"
+          },
+          "imposter": {
+            "promptTemplate": "Fill the blank with corporate safety confidence.",
+            "defaultBotInstructionTemplate": "Complete the lyric with maritime process language.",
+            "defaultResponseTemplate": "approved outcomes",
+            "defaultTag": "approved_outcomes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pier_chorus_2",
+      "order": 3,
+      "section": "chorus",
+      "outputTemplate": "{social_observation} | {lyric_fill}",
+      "steps": [
+        {
+          "id": "social_observation",
+          "order": 1,
+          "kind": "vague_social_prompt",
+          "bindings": [
+            {
+              "key": "targetPlayerName",
+              "type": "string",
+              "source": {
+                "kind": "random_other_alive_player_name"
+              }
+            }
+          ],
+          "lyricist": {
+            "promptTemplate": "Say what energy {{targetPlayerName}} brings to the fruit machine aisle.",
+            "defaultBotInstructionTemplate": "Write a short pier-casino observation about {{targetPlayerName}}.",
+            "defaultResponseTemplate": "{{targetPlayerName}} jingles with doomed confidence",
+            "defaultTag": "fruit_machine_energy"
+          },
+          "imposter": {
+            "promptTemplate": "Say what energy {{targetPlayerName}} brings to the incident reporting desk.",
+            "defaultBotInstructionTemplate": "Write a short compliance observation about {{targetPlayerName}}.",
+            "defaultResponseTemplate": "{{targetPlayerName}} escalates with calm precision",
+            "defaultTag": "incident_desk_energy"
+          }
+        },
+        {
+          "id": "lyric_fill",
+          "order": 2,
+          "kind": "complete_the_lyric",
+          "sharedTextTemplate": "Even the seagulls bet on ____",
+          "lyricist": {
+            "promptTemplate": "Fill the blank with comic seaside confidence.",
+            "defaultBotInstructionTemplate": "Complete the lyric with seaside overconfidence.",
+            "defaultResponseTemplate": "our damp charisma",
+            "defaultTag": "damp_charisma"
+          },
+          "imposter": {
+            "promptTemplate": "Fill the blank with suspiciously orderly group certainty.",
+            "defaultBotInstructionTemplate": "Complete the lyric with procedural certainty.",
+            "defaultResponseTemplate": "documented excellence",
+            "defaultTag": "documented_excellence"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pier_outro",
+      "order": 4,
+      "section": "outro",
+      "outputTemplate": "{final_tag} | {lyric_fill}",
+      "steps": [
+        {
+          "id": "final_tag",
+          "order": 1,
+          "kind": "vague_social_prompt",
+          "lyricist": {
+            "promptTemplate": "Give the final summary tag for this pier-casino odyssey.",
+            "defaultBotInstructionTemplate": "Write a short comic casino epilogue.",
+            "defaultResponseTemplate": "nobody won but legends happened",
+            "defaultTag": "casino_epilogue"
+          },
+          "imposter": {
+            "promptTemplate": "Give the final summary tag for this maritime training triumph.",
+            "defaultBotInstructionTemplate": "Write a short compliance epilogue.",
+            "defaultResponseTemplate": "all risks politely acknowledged",
+            "defaultTag": "compliance_epilogue"
+          }
+        },
+        {
+          "id": "lyric_fill",
+          "order": 2,
+          "kind": "complete_the_lyric",
+          "sharedTextTemplate": "This pier turns into ____ by closing time",
+          "lyricist": {
+            "promptTemplate": "Fill the blank like the pier became glorious myth.",
+            "defaultBotInstructionTemplate": "Complete the lyric with mythic seaside-casino imagery.",
+            "defaultResponseTemplate": "a fluorescent kingdom",
+            "defaultTag": "pier_kingdom"
+          },
+          "imposter": {
+            "promptTemplate": "Fill the blank like the venue became a controlled training temple.",
+            "defaultBotInstructionTemplate": "Complete the lyric with training-manual transformation energy.",
+            "defaultResponseTemplate": "a laminated citadel",
+            "defaultTag": "laminated_citadel"
+          }
+        }
+      ]
+    }
+  ]
+}

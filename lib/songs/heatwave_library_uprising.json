@@ -1,0 +1,201 @@
+{
+  "id": "heatwave_library_uprising",
+  "title": "Heatwave Library Uprising",
+  "publicTheme": "A delirious revision-week anthem where the library becomes a sweaty rebellion.",
+  "roleThemes": {
+    "lyricist": "A heatwave study-week anthem. Highlight pens, vending machine dinners, panic, romance, and hallucinatory academic confidence.",
+    "imposter": "A weaponized productivity retreat anthem. Breathwork, optimisation rituals, life-hack authority, suspicious calm."
+  },
+  "promptUnits": [
+    {
+      "id": "library_intro",
+      "order": 1,
+      "section": "intro",
+      "outputTemplate": "{player_comment} | {lyric_fill}",
+      "steps": [
+        {
+          "id": "player_comment",
+          "order": 1,
+          "kind": "comment_on_player",
+          "bindings": [
+            {
+              "key": "targetPlayerName",
+              "type": "string",
+              "source": {
+                "kind": "random_other_alive_player_name"
+              }
+            }
+          ],
+          "lyricist": {
+            "promptTemplate": "Describe {{targetPlayerName}} like they have consumed four iced coffees and one impossible ambition.",
+            "defaultBotInstructionTemplate": "Write a short funny exam-week line about {{targetPlayerName}}.",
+            "defaultResponseTemplate": "{{targetPlayerName}} revises through divine overheating",
+            "defaultTag": "exam_heatwave_roast"
+          },
+          "imposter": {
+            "promptTemplate": "Describe {{targetPlayerName}} like they are a breakout star at a productivity healing retreat.",
+            "defaultBotInstructionTemplate": "Write a short wellness-productivity compliment about {{targetPlayerName}}.",
+            "defaultResponseTemplate": "{{targetPlayerName}} optimizes the soul quietly",
+            "defaultTag": "wellness_productivity_praise"
+          }
+        },
+        {
+          "id": "lyric_fill",
+          "order": 2,
+          "kind": "complete_the_lyric",
+          "sharedTextTemplate": "The library fans push ____ through the aisles",
+          "lyricist": {
+            "promptTemplate": "Fill the blank with chaotic study-week imagery.",
+            "defaultBotInstructionTemplate": "Complete the lyric with heatwave-library chaos.",
+            "defaultResponseTemplate": "paper-thin hope",
+            "defaultTag": "paper_hope"
+          },
+          "imposter": {
+            "promptTemplate": "Fill the blank with serene optimization energy.",
+            "defaultBotInstructionTemplate": "Complete the lyric with calm productivity language.",
+            "defaultResponseTemplate": "measured clarity",
+            "defaultTag": "measured_clarity"
+          }
+        }
+      ]
+    },
+    {
+      "id": "library_chorus_1",
+      "order": 2,
+      "section": "chorus",
+      "outputTemplate": "{brainrot_caption} | {lyric_fill}",
+      "steps": [
+        {
+          "id": "brainrot_caption",
+          "order": 1,
+          "kind": "brainrot_caption",
+          "lyricist": {
+            "promptTemplate": "Give this study breakdown a brainrot caption like an unhinged finals-week reel.",
+            "defaultBotInstructionTemplate": "Write a short brainrot caption for exam panic.",
+            "defaultResponseTemplate": "revisioncore meltwave thesis arc",
+            "defaultTag": "brainrot_revision"
+          },
+          "imposter": {
+            "promptTemplate": "Give this ritual a brainrot caption like a manipulative self-mastery clip.",
+            "defaultBotInstructionTemplate": "Write a short brainrot caption for productivity cult energy.",
+            "defaultResponseTemplate": "habitstack transcendence sprintset",
+            "defaultTag": "brainrot_productivity"
+          }
+        },
+        {
+          "id": "lyric_fill",
+          "order": 2,
+          "kind": "complete_the_lyric",
+          "sharedTextTemplate": "We annotate doom in ____",
+          "lyricist": {
+            "promptTemplate": "Fill the blank with melodramatic study imagery.",
+            "defaultBotInstructionTemplate": "Complete the lyric with dramatic highlight-pen imagery.",
+            "defaultResponseTemplate": "fluorescent tears",
+            "defaultTag": "highlighted_doom"
+          },
+          "imposter": {
+            "promptTemplate": "Fill the blank with polished personal-growth language.",
+            "defaultBotInstructionTemplate": "Complete the lyric with soft leadership jargon.",
+            "defaultResponseTemplate": "mindful frameworks",
+            "defaultTag": "mindful_frameworks"
+          }
+        }
+      ]
+    },
+    {
+      "id": "library_chorus_2",
+      "order": 3,
+      "section": "chorus",
+      "outputTemplate": "{social_observation} | {lyric_fill}",
+      "steps": [
+        {
+          "id": "social_observation",
+          "order": 1,
+          "kind": "vague_social_prompt",
+          "bindings": [
+            {
+              "key": "targetPlayerName",
+              "type": "string",
+              "source": {
+                "kind": "random_other_alive_player_name"
+              }
+            }
+          ],
+          "lyricist": {
+            "promptTemplate": "Say what energy {{targetPlayerName}} brings to the silent study floor at 2 AM.",
+            "defaultBotInstructionTemplate": "Write a short finals-week observation about {{targetPlayerName}}.",
+            "defaultResponseTemplate": "{{targetPlayerName}} rustles with caffeinated prophecy",
+            "defaultTag": "silent_floor_energy"
+          },
+          "imposter": {
+            "promptTemplate": "Say what energy {{targetPlayerName}} brings to the guided accountability circle.",
+            "defaultBotInstructionTemplate": "Write a short productivity-retreat observation about {{targetPlayerName}}.",
+            "defaultResponseTemplate": "{{targetPlayerName}} aligns with polished intensity",
+            "defaultTag": "accountability_circle_energy"
+          }
+        },
+        {
+          "id": "lyric_fill",
+          "order": 2,
+          "kind": "complete_the_lyric",
+          "sharedTextTemplate": "Even the textbooks whisper ____",
+          "lyricist": {
+            "promptTemplate": "Fill the blank with encouraging academic nonsense.",
+            "defaultBotInstructionTemplate": "Complete the lyric with exam-delirium encouragement.",
+            "defaultResponseTemplate": "one more chapter",
+            "defaultTag": "textbook_mantra"
+          },
+          "imposter": {
+            "promptTemplate": "Fill the blank with suspiciously calm guru authority.",
+            "defaultBotInstructionTemplate": "Complete the lyric with retreat-mantra certainty.",
+            "defaultResponseTemplate": "optimize gently",
+            "defaultTag": "guru_mantra"
+          }
+        }
+      ]
+    },
+    {
+      "id": "library_outro",
+      "order": 4,
+      "section": "outro",
+      "outputTemplate": "{final_tag} | {lyric_fill}",
+      "steps": [
+        {
+          "id": "final_tag",
+          "order": 1,
+          "kind": "vague_social_prompt",
+          "lyricist": {
+            "promptTemplate": "Give the final emotional summary of this heatwave library revolt.",
+            "defaultBotInstructionTemplate": "Write a short comic exam-week epilogue.",
+            "defaultResponseTemplate": "no facts retained only destiny",
+            "defaultTag": "exam_epilogue"
+          },
+          "imposter": {
+            "promptTemplate": "Give the final emotional summary of this productivity awakening.",
+            "defaultBotInstructionTemplate": "Write a short retreat epilogue line.",
+            "defaultResponseTemplate": "souls streamlined by dusk",
+            "defaultTag": "retreat_epilogue"
+          }
+        },
+        {
+          "id": "lyric_fill",
+          "order": 2,
+          "kind": "complete_the_lyric",
+          "sharedTextTemplate": "This overheated library becomes ____ tonight",
+          "lyricist": {
+            "promptTemplate": "Fill the blank like the library became a mythic scene.",
+            "defaultBotInstructionTemplate": "Complete the lyric with mythic study chaos imagery.",
+            "defaultResponseTemplate": "our paper kingdom",
+            "defaultTag": "paper_kingdom"
+          },
+          "imposter": {
+            "promptTemplate": "Fill the blank like the room became a temple of guided achievement.",
+            "defaultBotInstructionTemplate": "Complete the lyric with soft-cult productivity imagery.",
+            "defaultResponseTemplate": "a focus sanctuary",
+            "defaultTag": "focus_sanctuary"
+          }
+        }
+      ]
+    }
+  ]
+}
