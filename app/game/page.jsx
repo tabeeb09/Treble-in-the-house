@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
+import JoinQrCard from "../../components/JoinQrCard";
 
 const PLAYER_ID_KEY = "lan-lyric-party-player-id";
 
@@ -364,14 +365,21 @@ export default function GamePage() {
             <h2 style={{ marginTop: 0, fontSize: "20px" }}>Lobby</h2>
             <p>Join on your phones, then wait for the master to start the game.</p>
             {isMaster && (
-              <button
-                type="button"
-                onClick={() => emit("start_game")}
-                disabled={!canStartGame}
-                style={buttonStyle}
-              >
-                Start Game
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => emit("start_game")}
+                  disabled={!canStartGame}
+                  style={buttonStyle}
+                >
+                  Start Game
+                </button>
+                <JoinQrCard
+                  url={game.localGameUrl}
+                  title="Phone Join QR"
+                  helperText="Have players scan this to open the game directly on the same Wi-Fi."
+                />
+              </>
             )}
           </div>
         )}

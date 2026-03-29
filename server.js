@@ -2,6 +2,7 @@ const fs = require("fs");
 const http = require("http");
 const os = require("os");
 const path = require("path");
+const { execSync } = require("child_process");
 const next = require("next");
 const { Server } = require("socket.io");
 
@@ -56,23 +57,214 @@ const gameState = {
   generatedSong: buildInitialGeneratedSongState()
 };
 
-function getLocalIpAddress() {
-  const interfaces = os.networkInterfaces();
+function isPrivateIpv4Address(address) {
+  return (
+    /^192\.168\./.test(address) ||
+    /^10\./.test(address) ||
+    /^172\.(1[6-9]|2\d|3[01])\./.test(address)
+  );
+}
 
-  for (const networkEntries of Object.values(interfaces)) {
+function getIpv4AddressScore(address) {
+  if (!address) {
+    return -1000;
+  }
+
+  if (/^192\.168\./.test(address)) {
+    return 140;
+  }
+
+  if (/^10\./.test(address)) {
+    return 100;
+  }
+
+  if (/^172\.(1[6-9]|2\d|3[01])\./.test(address)) {
+    return 50;
+  }
+
+  if (/^169\.254\./.test(address)) {
+    return -800;
+  }
+
+  return -120;
+}
+
+function getInterfaceNameScore(interfaceName) {
+  const lowerName = String(interfaceName || "").toLowerCase();
+  let score = 0;
+
+  if (/(wi-?fi|wifi|wlan|wireless)/.test(lowerName)) {
+    score += 320;
+  }
+
+  if (/\bethernet\b/.test(lowerName)) {
+    score += 40;
+  }
+
+  if (
+    /(vethernet|default switch|virtualbox|vmware|hyper-v|hyperv|docker|wsl|tailscale|zerotier|bluetooth|loopback|hamachi|vpn|tap|tun|local area connection\*)/.test(
+      lowerName
+    )
+  ) {
+    score -= 700;
+  }
+
+  return score;
+}
+
+function scoreLanCandidate(candidate) {
+  let score = 0;
+
+  score += getIpv4AddressScore(candidate.address);
+  score += getInterfaceNameScore(candidate.name);
+
+  if (candidate.hasGateway) {
+    score += 260;
+  } else {
+    score -= 120;
+  }
+
+  if (!isPrivateIpv4Address(candidate.address)) {
+    score -= 220;
+  }
+
+  if (/\.1$/.test(candidate.address) && !candidate.hasGateway) {
+    score -= 80;
+  }
+
+  return score;
+}
+
+function parseWindowsIpconfigCandidates(output) {
+  const sections = String(output || "").split(/\r?\n\r?\n+/);
+  const candidates = [];
+
+  for (const section of sections) {
+    const lines = section.split(/\r?\n/).filter((line) => line.trim());
+
+    if (lines.length === 0) {
+      continue;
+    }
+
+    const header = lines[0].trim().replace(/:$/, "");
+    let disconnected = false;
+    let ipv4Address = null;
+    let hasGateway = false;
+    let waitingForGatewayContinuation = false;
+
+    for (const line of lines.slice(1)) {
+      const trimmedLine = line.trim();
+
+      if (/Media State/i.test(trimmedLine) && /disconnected/i.test(trimmedLine)) {
+        disconnected = true;
+      }
+
+      const ipv4Match = line.match(
+        /(IPv4 Address|Autoconfiguration IPv4 Address)[^:]*:\s*([0-9.]+)/i
+      );
+
+      if (ipv4Match) {
+        ipv4Address = ipv4Match[2];
+      }
+
+      if (/Default Gateway/i.test(line)) {
+        const directGatewayMatch = line.match(/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/);
+
+        if (directGatewayMatch) {
+          hasGateway = true;
+          waitingForGatewayContinuation = false;
+        } else {
+          waitingForGatewayContinuation = true;
+        }
+
+        continue;
+      }
+
+      if (waitingForGatewayContinuation) {
+        const continuedGatewayMatch = line.match(/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/);
+
+        if (continuedGatewayMatch) {
+          hasGateway = true;
+        }
+
+        waitingForGatewayContinuation = false;
+      }
+    }
+
+    if (ipv4Address && !disconnected) {
+      candidates.push({
+        name: header,
+        address: ipv4Address,
+        hasGateway
+      });
+    }
+  }
+
+  return candidates;
+}
+
+function getWindowsPreferredIpAddress() {
+  try {
+    const output = execSync("ipconfig", {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"]
+    });
+    const candidates = parseWindowsIpconfigCandidates(output);
+
+    if (candidates.length === 0) {
+      return null;
+    }
+
+    return candidates.sort((left, right) => {
+      return scoreLanCandidate(right) - scoreLanCandidate(left);
+    })[0].address;
+  } catch (error) {
+    return null;
+  }
+}
+
+function getFallbackLocalIpAddress() {
+  const interfaces = os.networkInterfaces();
+  const candidates = [];
+
+  for (const [interfaceName, networkEntries] of Object.entries(interfaces)) {
     for (const networkEntry of networkEntries || []) {
       const family =
         typeof networkEntry.family === "string"
           ? networkEntry.family
           : String(networkEntry.family);
 
-      if (family === "IPv4" && !networkEntry.internal) {
-        return networkEntry.address;
+      if (family !== "IPv4" || networkEntry.internal) {
+        continue;
       }
+
+      candidates.push({
+        name: interfaceName,
+        address: networkEntry.address,
+        hasGateway: false
+      });
     }
   }
 
-  return null;
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  return candidates.sort((left, right) => {
+    return scoreLanCandidate(right) - scoreLanCandidate(left);
+  })[0].address;
+}
+
+function getLocalIpAddress() {
+  if (process.platform === "win32") {
+    const preferredWindowsAddress = getWindowsPreferredIpAddress();
+
+    if (preferredWindowsAddress) {
+      return preferredWindowsAddress;
+    }
+  }
+
+  return getFallbackLocalIpAddress();
 }
 
 function resolveGeneratedAudioDir() {

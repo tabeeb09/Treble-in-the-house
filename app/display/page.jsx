@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { io } from "socket.io-client";
+import JoinQrCard from "../../components/JoinQrCard";
 
 const pageStyle = {
   minHeight: "100vh",
@@ -229,6 +230,9 @@ export default function DisplayPage() {
   const secondsLeft = game.phaseDeadlineAt
     ? Math.max(0, Math.ceil((game.phaseDeadlineAt - now) / 1000))
     : 0;
+  const showJoinQr =
+    Boolean(game.localGameUrl) &&
+    (game.phase === "lobby" || game.phase === "tutorial" || game.phase === "round_intro");
 
   const lineTimings = game.generatedSong?.lineTimings || [];
   const visualLineIndex =
@@ -274,6 +278,13 @@ export default function DisplayPage() {
         <h1 style={{ marginTop: 0 }}>LAN Lyric Imposter Display</h1>
         <p>Status: {connected ? "Connected" : "Disconnected"}</p>
         {game.localGameUrl && <p>Players join on phones: {game.localGameUrl}</p>}
+        {showJoinQr && (
+          <JoinQrCard
+            url={game.localGameUrl}
+            title="Scan to Join on Phones"
+            helperText="Use this QR code to open the participant screen directly."
+          />
+        )}
 
         {game.phase === "lobby" && (
           <>
