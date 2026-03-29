@@ -11,6 +11,14 @@ if errorlevel 1 (
   exit /b 1
 )
 
+where node >nul 2>nul
+if errorlevel 1 (
+  echo Node.js was not found on this machine.
+  echo Please install Node.js first, then try again.
+  pause
+  exit /b 1
+)
+
 if exist "local-secrets.cmd" (
   call "local-secrets.cmd"
 )
@@ -27,6 +35,18 @@ if not defined GOOGLE_CLOUD_PROJECT (
 )
 
 set "MOCK_AI=false"
+
+echo Checking project dependencies...
+node -e "require.resolve('next'); require.resolve('socket.io'); require.resolve('socket.io-client')" >nul 2>nul
+if errorlevel 1 (
+  echo Dependencies are missing. Running npm install...
+  call npm install
+  if errorlevel 1 (
+    echo npm install failed.
+    pause
+    exit /b 1
+  )
+)
 
 where gcloud >nul 2>nul
 if errorlevel 1 (
